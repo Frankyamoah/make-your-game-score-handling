@@ -1,0 +1,192 @@
+body {
+    background-image: url('1219.jpg');
+    background-size: cover; 
+    background-repeat: no-repeat; 
+
+}
+
+#game-container {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
+    background-color: transparent;
+    color: #000;
+}
+@keyframes flash {
+    0% { opacity: 0.5; } 
+    50% { opacity: 1; }
+    100% { opacity: 0.5; } 
+}
+
+.flash {
+    animation: flash 1s;
+}
+
+
+
+#tetris-board {
+    display: grid;
+    grid-template-columns: repeat(var(--board-width), 1fr);
+    grid-template-rows: repeat(var(--board-height), 1fr);
+    width: 300px;
+    height: 600px;
+    border: 2px solid #000;
+    background-color: transparent;
+    color: #000;
+    }
+
+.cell {
+    width: 100%;
+    height: 100%;
+}   
+
+.cell.empty {
+    background-color: transparent; /* Empty cells have a transparent background */
+}
+
+/* Tetromino colors */
+.cell.color-1 { background-color: rgb(198, 102, 185); }
+.cell.color-2 { background-color: yellow; }
+.cell.color-3 { background-color: purple; }
+.cell.color-4 { background-color: green; }
+.cell.color-5 { background-color: red; }
+.cell.color-6 { background-color: blue; }
+.cell.color-7 { background-color: orange; }
+
+.cell.filled {
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4); /* Adjust values as needed */
+    border: 1.5px groove #000;
+    border-radius: 2.5px;
+}
+
+#score,
+#timer,
+#lives {
+    margin-top: 20px;
+    font-size: 20px;
+}
+#titleScreen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 80px; /* Add some spacing from the top */
+    align-items: center;
+    z-index: 10; /* Make sure it's on top of the game */
+}
+
+#titleScreenImage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the image covers the entire div without distortion */
+    z-index: 1; /* Ensures the image stays behind the text and buttons */
+}
+
+#titleScreen h1,
+#titleScreen button,
+#titleScreen p {
+    z-index: 2; /* Ensures the text and buttons appear on top of the image */
+    position: relative; /* Makes sure z-index applies */
+}
+
+#titleScreen h1, #titleScreen button {
+    font-family: 'Press Start 2P', cursive;
+}
+
+
+
+#pause-menu {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 5px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: pink;
+    color: bisque;
+}
+
+#pause-menu.hidden {
+    display: none;
+}
+
+#continue-btn,
+#restart-btn {
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #000;
+    border: none;
+    cursor: pointer;
+}
+
+#continue-btn {
+    background-color: #8bc34a;
+}
+
+#restart-btn {
+    background-color: #f44336;
+}
+
+#continue-btn.hidden {
+    display: none;
+}
+
+#restart-btn.hidden {
+    display: none;
+}
+
+#pause-btn {
+    color: #000;
+    background-color: rgb(255, 0, 247);
+}
+
+/* Leaderboard container styles */
+#leaderboard-container {
+    position: absolute; /* Absolutely position it */
+    top: 35%; /* Adjust this value to move it up or down */
+    right: -120px; /* Adjust to bring it closer or farther from the right side */
+    width: 30%; /* Adjust width as necessary */
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8); /* semi-transparent black */
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+    /* z-index: 20; Ensure it's on top of other elements */
+    width: 50%; /* Use a percentage width to make it responsive */
+    max-width: 400px; /* Set a max width for very wide screens */
+    font-family: 'Press Start 2P', cursive;
+}
+
+/* Leaderboard title styles */
+#leaderboard-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+#leaderboard-table thead tr {
+    padding-bottom: 75px; /* Adjust the value as needed */
+}
+
+#leaderboard-table th {
+    padding: 30px 15px; /* Adjust these values as needed */
+}
+
+#pagination {
+    padding: 30px 0; /* 20px top and bottom padding, 0 left and right padding */
+}
+
+
+

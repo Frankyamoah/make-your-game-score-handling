@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
+    <title>Tetris Game</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <audio id="gameMusic" loop>
+      <source src="Tetris_theme.mp3" type="audio/mp3" />
+  </audio>
+  <audio id="clearLineSound" src="LineClear.wav" preload="auto"></audio>
+  <button id="playMusic">Play Music</button>
+<button id="pauseMusic">Pause Music</button>
+<button id="pause-btn">Pause</button>
+<div id="titleScreen">
+  <img src="TetrisTitleScreen.jpeg" alt="Tetris Title Screen" id="titleScreenImage">
+  <h1>Tetris Game</h1>
+  <button id="startButton">Start Game</button>
+  <p>Press ENTER to start</p>
+</div>
+    <div id="game-container">
+      <div id="fps-display"></div>
+      <div id="tetris-board"></div> 
+      <div id="score">Score: <span id="score-value">0</span></div>
+      <div id="timer">Time: <span id="timer-value">0</span></div>
+      <div id="lives">Lives: <span id="lives-value">0</span></div>
+      <div id="leaderboard-container" class="hidden">
+        <div id="leaderboard-section" class="leaderboard-section">
+          <h2>Leaderboard</h2>
+          <table id="leaderboard-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Name</th>
+                <th>Score</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+              <!-- Data will be populated here by JavaScript -->
+            </tbody>
+          </table>
+          <div id="pagination">
+            <button id="prev-page" onclick="prevPage()">Previous</button>
+            <span id="page-num">Page 1</span>
+            <button id="next-page" onclick="nextPage()">Next</button>
+          </div>
+          <div id="congratulatory-message" class="congratulatory-message">
+            <!-- Congratulatory message will be displayed here -->
+          </div>
+        </div>
+    </div>
+    </div>
+    <div id="pause-menu" class="hidden">
+      <button id="continue-btn" class="hidden">Continue</button>
+      <button id="restart-btn" class="hidden">Restart</button>
+    </div>
+    <script src="game.js"></script>
+  </body>
+</html>
+
+
