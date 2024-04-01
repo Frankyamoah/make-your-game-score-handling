@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"sort"
 	"strconv"
 )
 
@@ -20,6 +19,8 @@ type ScoreEntry struct {
 var scores []ScoreEntry
 
 func main() {
+	initDatabase() // Initialize the database
+
 	http.HandleFunc("/submit", corsMiddleware(submitHandler))
 	http.HandleFunc("/leaderboard", corsMiddleware(leaderboardHandler))
 	http.HandleFunc("/remove", corsMiddleware(removeHandler))
@@ -58,40 +59,17 @@ func submitHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid score", http.StatusBadRequest)
 		return
 	}
-	// Append the new score to thescore slice
-	scores = append(scores, ScoreEntry{Name: name, Score: score, Time: time})
 
-	// sort the scores in descending order
-	sort.SliceStable(scores, func(i, j int) bool {
-		return scores[i].Score > scores[j].Score
-	})
-
-	// Asign ranks to the scores
-	lastScore := -1
-	lastRank := 0
-	currentRank := 0
-
-	for i := range scores {
-		if scores[i].Score != lastScore {
-			lastRank = i + 1
-		}
-		scores[i].Rank = lastRank // Assigning the Rank
-		lastScore = scores[i].Score
-
-		// If the score added matches the current score give it a rank
-		if scores[i].Name == name && scores[i].Score == score && scores[i].Time == time {
-			currentRank = lastRank
-		}
-
+	// Insert the new score into the database
+	_, dbErr := db.Exec("INSERT INTO leaderboard (name, score, time) VALUES (?, ?, ?)", name, score, time)
+	if dbErr != nil {
+		log.Printf("Failed to insert score into database: %v", dbErr)
+		http.Error(w, "Failed to submit score", http.StatusInternalServerError)
+		return
 	}
 
-	// Calculate the percentile
-	totalScores := len(scores)
-	percentile := (1.0 - float64(currentRank-1)/float64(totalScores)) * 100
-
-	// Create a response writter
-	responseMessage := fmt.Sprintf("Congrats %s, you are in the  top %.2f%%, on the %dth position.", name, percentile, currentRank)
 	// Respond to the client
+	responseMessage := "Score submitted successfully."
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(responseMessage))
 }
@@ -105,22 +83,59 @@ func leaderboardHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	// Define number of scores per page
 	scoresPerPage := 5
+	offset := (page - 1) * scoresPerPage
 
-	//Calculate the start and end ndices of the scores slice
-	startIndex := (page - 1) * scoresPerPage
-	endIndex := startIndex + scoresPerPage
-	if endIndex > len(scores) {
-		endIndex = len(scores)
+	// Query the database for the total number of leaderboard entries
+	var totalEntries int
+	err = db.QueryRow("SELECT COUNT(*) FROM leaderboard").Scan(&totalEntries)
+	if err != nil {
+		http.Error(w, "Failed to retrieve score count", http.StatusInternalServerError)
+		return
 	}
 
-	//Get the scores for the requested page
-	pageScores := scores[startIndex:endIndex]
+	// Calculate total pages (assuming scoresPerPage is defined and > 0)
+	totalPages := (totalEntries + scoresPerPage - 1) / scoresPerPage
+
+	// Query the database for the scores page, already sorted by score in descending order
+	rows, err := db.Query("SELECT name, score, time FROM leaderboard ORDER BY score DESC LIMIT ? OFFSET ?", scoresPerPage, offset)
+	if err != nil {
+		http.Error(w, "Failed to retrieve scores", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var pageScores []ScoreEntry
+	rank := 1 + offset // Calculate starting rank based on page offset
+	for rows.Next() {
+		var entry ScoreEntry
+		err := rows.Scan(&entry.Name, &entry.Score, &entry.Time)
+		if err != nil {
+			http.Error(w, "Failed to read score entry", http.StatusInternalServerError)
+			return
+		}
+		entry.Rank = rank // Assign rank based on order in the database
+		pageScores = append(pageScores, entry)
+		rank++ // Increment rank for the next entry
+	}
+
+	// After fetching the pageScores, create a response struct that includes
+	// the scores, current page, and total pages
+	response := struct {
+		Scores      []ScoreEntry `json:"scores"`
+		CurrentPage int          `json:"currentPage"`
+		TotalPages  int          `json:"totalPages"`
+	}{
+		Scores:      pageScores,
+		CurrentPage: page,
+		TotalPages:  totalPages,
+	}
 
 	//Convert the scores to JSON
-	jsonData, err := json.Marshal(pageScores)
+	jsonData, err := json.Marshal(response)
 	if err != nil {
 		http.Error(w, "Failed to convert leaderboard to JSON", http.StatusInternalServerError)
 	}
+
 	// Return the JSON response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

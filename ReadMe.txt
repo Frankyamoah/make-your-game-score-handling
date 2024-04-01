@@ -1,6 +1,5 @@
-Instructions for Running Game:
-1. Install nodejs onto pc if not installed already
-2. Next install the following  dependencies, (cors, express, sqlite3) this can be done by typing npm install "insert dependency here":
-3. Ensure you have live-server plugin installed on your VsCode
-4. type node server.js into terminal this establishes a connection with the database.
-5. Run index.html with liver-server to run the game.
+Instructions for Running Game With Score Handeling:
+1. Ensure go is installed on computer and extension is on VsCode
+2. Type go run server.go database.go in terminal
+3. Run index.html with liver-server to run the game.
+4. Leaderboard should load upon pressing start game

@@ -19,6 +19,8 @@ const TARGET_DELTA_TIME = 1000 / 60; // targeting 60 FPS
 let check = false; // used for determining if music playing when paused
 const API_BASE_URL = "http://localhost:3500";
 let leaderboardInterval;
+let currentPage = 1; // Initialize to the first page by default
+let totalPages; // Will be updated based on the server's response
 
 // Game Elements
 const gameContainer = document.getElementById("game-container"); // Game container
@@ -152,7 +154,7 @@ function startGame() {
   initializeGame();
   lastRenderTime = performance.now();
   requestAnimationFrame(updateGame);
-  fetchAndDisplayLeaderboard()
+  fetchAndDisplayLeaderboard(currentPage)
   leaderboardInterval = setInterval(fetchAndDisplayLeaderboard, 10000); // updates every 10 seconds 
 }
 
@@ -668,13 +670,14 @@ function formatTime(seconds) {
   );
 }
 
-function populateLeaderboard(data){
+function populateLeaderboard(scores){
+  console.log(scores) // Test
 // variable to referto html leaderboard element
 const leaderboardBody = document.getElementById('leaderboard-body');
 // Ensure leaderboard is empty by clearing contents before adding
 leaderboardBody.innerHTML = '';
 // Loop through each element of the data in
-data.forEach(entry => {
+scores.forEach(entry => {
 // Create row element for to represent each leaderboard entry
 const row = document.createElement('tr')
 // Create a new cell to represent the rank and set its text content to 'rank'
@@ -702,25 +705,59 @@ leaderboardBody.appendChild(row)
   });
 }
 
+async function fetchAndDisplayLeaderboard(pageNumber = 1) {
+  try {
+      // Make the request to your leaderboard endpoint, including the page number
+      console.log(`Fetching page ${pageNumber}`); // Debugging: Log the page number being requested
+      const response = await fetch(`http://localhost:3500/leaderboard?page=${pageNumber}`);
+      if (!response.ok) {
+          throw new Error('Failed to fetch leaderboard data.');
+      }
+      // Parse the JSON response and log it for inspection
+      const responseData = await response.json();
+      console.log("Response data received from server:", responseData); // Debugging: Log the received response data
 
-async function fetchAndDisplayLeaderboard(){
-try {
-  // fetch leaderboard from api 
-  let response = await fetch("http://localhost:3500/leaderboard");
-  if (!response.ok) {
-    throw new Error('Failed to fetch leaderboard data.');
+      // Destructure the JSON response to extract scores, currentPage, and totalPages
+      const { scores, currentPage, totalPages } = responseData;
+
+      if (!scores) {
+          console.error("Scores data is undefined or not present in the response."); // Debugging: Check if scores data is undefined or not present
+          return; // Exit the function early if scores data is not available
+      }
+
+      // Ensure 'scores' is an array as expected
+      if (Array.isArray(scores)) {
+          // Use the extracted scores to populate the leaderboard
+          populateLeaderboard(scores);
+      } else {
+          console.error("'scores' is not an array:", scores); // Corrected to log 'scores' instead of 'Scores'
+      }
+
+      // Update the page number display
+      document.getElementById('page-num').textContent = `Page ${currentPage}`; // Corrected to use lowercase 'currentPage'
+
+      // Enable or disable pagination buttons based on the current page and total pages
+      document.getElementById('prev-page').disabled = currentPage <= 1; // Corrected to use lowercase 'currentPage'
+      document.getElementById('next-page').disabled = currentPage >= totalPages; // Corrected to use lowercase 'currentPage' and 'totalPages'
+  } catch (error) {
+      console.error("Error fetching leaderboard:", error);
   }
-  let data = await response.json();
-  // Load fetched data to populate the leaderboard DOM
-  populateLeaderboard(data);
-
-} catch (error) {
-  console.error("Error fetching leaderboard:", error);
 }
 
-}
+
 
 // Event Listeners
 document.addEventListener("keydown", handleKeyPress);
 
 
+function prevPage() {
+  if (currentPage > 1) {
+      currentPage =- 1;
+      fetchAndDisplayLeaderboard(currentPage);
+  }
+}
+
+function nextPage() {
+  currentPage += 1;
+  fetchAndDisplayLeaderboard(currentPage);
+}

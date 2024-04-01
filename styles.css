@@ -10,6 +10,7 @@ body {
     flex-direction: column;
     align-items: center;
     margin-top: 50px;
+    margin-right: 225px;
     background-color: transparent;
     color: #000;
 }
@@ -157,8 +158,7 @@ body {
 #leaderboard-container {
     position: absolute; /* Absolutely position it */
     top: 35%; /* Adjust this value to move it up or down */
-    right: -120px; /* Adjust to bring it closer or farther from the right side */
-    width: 30%; /* Adjust width as necessary */
+    right: -150px; /* Adjust to bring it closer or farther from the right side */
     transform: translate(-50%, -50%);
     background-color: rgba(0, 0, 0, 0.8); /* semi-transparent black */
     color: white;
@@ -166,27 +166,60 @@ body {
     border-radius: 5px;
     /* z-index: 20; Ensure it's on top of other elements */
     width: 50%; /* Use a percentage width to make it responsive */
-    max-width: 400px; /* Set a max width for very wide screens */
+    max-width: 500px; /* Set a max width for very wide screens */
     font-family: 'Press Start 2P', cursive;
 }
 
 /* Leaderboard title styles */
 #leaderboard-container h2 {
-    text-align: center;
-    margin-bottom: 30px;
+    display: flex; /* Enables flexbox */
+    justify-content: center; /* Centers children (the table) horizontally */
+    align-items: center; /* Centers children vertically */
+   
+}
+#leaderboard-table {
+    width: 100%;
+    border-collapse: collapse; /* Eliminates the space between borders */
+    table-layout: auto; /* Allows table cells to adjust based on content */
+   
 }
 
-#leaderboard-table thead tr {
-    padding-bottom: 75px; /* Adjust the value as needed */
+#leaderboard-table th,
+#leaderboard-table td {
+    border: 1px solid #ddd; /* Adds a subtle border around each cell */
+    text-align: left;
+    padding: 8px; /* Adjust the padding as needed for spacing */
+}
+
+#leaderboard-table tr:nth-child(even) {
+    background-color: #5c4f4f; /* Adds a zebra-striping effect for rows */
 }
 
 #leaderboard-table th {
-    padding: 30px 15px; /* Adjust these values as needed */
+    background-color: #4CAF50; /* Color for the header background */
+    color: white; /* Color for the header text */
 }
+
 
 #pagination {
     padding: 30px 0; /* 20px top and bottom padding, 0 left and right padding */
 }
 
+
+@media (max-width: 600px) {
+    #leaderboard-container {
+        width: 95%; /* Allows the leaderboard to fit better on small screens */
+        padding: 10px;
+    }
+
+    #leaderboard-table th,
+    #leaderboard-table td {
+        padding: 4px; /* Reduces padding for smaller screens */
+    }
+
+    #leaderboard-table {
+        font-size: 14px; /* Adjusts font size for readability on small screens */
+    }
+}
 
 
